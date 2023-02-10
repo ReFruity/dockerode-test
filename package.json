@@ -1,0 +1,20 @@
+{
+  "name": "dockerode-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "node -r ts-node/register src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Anton Istomin",
+  "license": "ISC",
+  "dependencies": {
+    "dockerode": "^3.3.4",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "@types/dockerode": "^3.3.14",
+    "typescript": "^4.9.5"
+  }
+}
