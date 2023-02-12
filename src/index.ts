@@ -1,6 +1,8 @@
 import Docker, { HostConfig } from 'dockerode'
+import { finished } from 'node:stream/promises'
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
+const port = process.env.PORT ?? '3000';
 
 async function info() {
   const containers = await docker.listContainers();
@@ -30,8 +32,8 @@ async function info() {
 async function startEchoServer() {
   const config: HostConfig = {
     PortBindings: { '80/tcp': [
-        { HostIp: '::', HostPort: '3000' },
-        { HostIp: '0.0.0.0', HostPort: '3000' },
+        // { HostIp: '::', HostPort: port },
+        { HostIp: '0.0.0.0', HostPort: port },
     ] }
   };
   const container = await docker.createContainer({
@@ -43,7 +45,7 @@ async function startEchoServer() {
     HostConfig: config,
     ExposedPorts: { '80/tcp': {} },
   });
-  console.log(JSON.stringify(container, null, 2));
+
   const startResult = await container.start();
   console.log('Started echo server', startResult.toString());
   // const stream = await container.attach(
@@ -83,8 +85,17 @@ async function exec() {
   console.log('Successfully executed command');
 }
 
+async function pullEchoServer() {
+  console.log('Pulling echo server image...');
+  const stream = await docker.pull('ealen/echo-server');
+  stream.on('data', (buffer: Buffer) => console.log(buffer.toString()));
+  await finished(stream);
+  console.log('Successfully pulled image');
+}
+
 async function run() {
   await info();
+  await pullEchoServer();
   await stopAndRemoveEchoServers();
   await startEchoServer();
   await exec();
